@@ -77,7 +77,6 @@ class TodoApp {
 
       $this->dbConnection = new PDO(sprintf('mysql:host=%s;dbname=%s', $this->dbHost, $this->dbName), $this->dbUser, $this->dbPass);
       $this->dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      Response::json(['success' => 'Connected to database'], 200);
 
     } catch ( PDOException $e ) {
 
@@ -85,5 +84,25 @@ class TodoApp {
 
     }
 
+    $this->prepareDatabase();
+
   }
+
+  protected function prepareDatabase(): void {
+
+    $sql = 'CREATE TABLE IF NOT EXISTS `todo_item` (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      body varchar(255) NOT NULL,
+      list INT NOT NULL,
+      status boolean NOT NULL
+    );';
+    $this->dbConnection->query($sql);
+
+    $sql = 'CREATE TABLE IF NOT EXISTS `todo_list` (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      name varchar(255) NOT NULL
+    );';
+    $this->dbConnection->query($sql);
+  }
+
 }
