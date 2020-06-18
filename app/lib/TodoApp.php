@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * To-do list application main class.
+ */
 class TodoApp {
   protected $dbName;
   protected $dbUser;
@@ -11,7 +14,7 @@ class TodoApp {
   }
   
   /**
-   * Set MySQL database name for connection
+   * Set MySQL database name for connection.
    * 
    * @param string $name
    * @return void
@@ -21,7 +24,7 @@ class TodoApp {
   }
   
   /**
-   * Set MySQL database user for connection
+   * Set MySQL database user for connection.
    *
    * @param string $user
    * @return void
@@ -31,7 +34,7 @@ class TodoApp {
   }
   
   /**
-   * Set MySQL database pass for connection
+   * Set MySQL database pass for connection.
    *
    * @param string $pass
    * @return void
@@ -41,7 +44,7 @@ class TodoApp {
   }
   
   /**
-   * Set MySQL database host for connection
+   * Set MySQL database host for connection.
    *
    * @param string $host
    * @return void
@@ -51,7 +54,7 @@ class TodoApp {
   }
 
   /**
-   * Checks if configuration for connection to database is complete
+   * Checks if configuration for connection to database is complete.
    *
    * @return boolean
    */
@@ -60,7 +63,7 @@ class TodoApp {
   }
 
   /**
-   * Tries to create connection to database, returns 503 response when failed
+   * Tries to create connection to database, returns 503 response when failed.
    *
    * @return void
    */
