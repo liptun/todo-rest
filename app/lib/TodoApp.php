@@ -9,6 +9,7 @@ class TodoApp {
   protected $dbPass;
   protected $dbHost;
   protected $dbConnection;
+  protected $request;
 
   function __construct() {
   }
@@ -103,6 +104,17 @@ class TodoApp {
       name varchar(255) NOT NULL
     );';
     $this->dbConnection->query($sql);
+  }
+
+  public function parseRequest(): void {
+
+    $this->request = new Request($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], '/api/v1/');
+
+    d($this->request->getMethod());
+    d($this->request->getParam());
+    d($this->request->getParamNext());
+
+
   }
 
 }

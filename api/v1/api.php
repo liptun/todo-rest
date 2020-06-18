@@ -6,9 +6,6 @@ $app->setDatabaseName(DBNAME);
 $app->setDatabaseUser(DBUSER);
 $app->setDatabasePass(DBPASS);
 $app->setDatabaseHost(DBHOST);
+
 $app->connectToDatabase();
-
-
-// d($_SERVER['REQUEST_URI']);
-// response(['Connected'], 200);
-// d($dbConnection);
+$app->parseRequest();
