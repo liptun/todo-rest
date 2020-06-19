@@ -8,11 +8,11 @@ class Response {
    * Sends json response with specified status code
    * and stops execution.
    *
-   * @param array $data
+   * @param $data
    * @param integer $status
    * @return void
    */
-  static function json($data, int $status = 200): void {
+  public static function json($data, int $status = 200): void {
     header('Content-Type: application/json');
     http_response_code($status);
     if (is_array($data)) {
