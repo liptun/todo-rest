@@ -105,6 +105,36 @@ class TodoApp {
     );
   }
 
+  protected function getAllTasks(): array {
+    $sql = 'SELECT * from `todo_tasks`;';
+    $query = $this->db->prepare($sql);
+    $query->execute();
+
+    $responseData = array();
+    $queryResult = $query->fetchAll();
+    foreach( $queryResult as $queryRow ) {
+      $responseData[] = TodoApp::modelTask($queryRow);
+    }
+    return $responseData;
+  }
+
+  protected function getTaskById($id) {
+    $sql = sprintf('SELECT * from `todo_tasks` WHERE id=%s;', $id);
+    $query = $this->db->prepare($sql);
+    $query->execute();
+
+    return $query->fetch();
+  }
+
+  protected function responseTaskById($id): void {
+    $queryResult = $this->getTaskById($id);
+    if ( $queryResult ) {
+      Response::json(TodoApp::modelTask($queryResult));
+    } else {
+      Response::json(['error' => sprintf('Item with id: %s don\'t exists.', $id)], 404);
+    }
+  }
+
   protected function parseRequest(): void {
 
     $router = new Router();
@@ -121,28 +151,14 @@ class TodoApp {
     });
 
     $router->addAction('GET', '/tasks', function($req){
-
-      $sql = 'SELECT * from `todo_tasks`;';
-
-      $query = $this->db->prepare($sql);
-      $query->execute();
-
-      $responseData = array();
-      foreach( $query->fetchAll() as $queryRow ) {
-        $responseData[] = TodoApp::modelTask($queryRow);
+      if ( $req->getParam('id') ) {
+        $this->responseTaskById($req->getParam('id'));
+      } else {
+        Response::json($this->getAllTasks());
       }
-      Response::json($responseData);
     });
-
     $router->addAction('GET', '/tasks/:id', function($req){
-      $data = array(
-        'id' => $req->getParam('id'),
-        'name' => sprintf('Task %s', $req->getParam('id')),
-        'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
-        'status' => false,
-        'list' => 0
-      );
-      Response::json($data);
+      $this->responseTaskById($req->getParam('id'));
     });
 
     $router->addAction('POST', '/tasks', function($req){
