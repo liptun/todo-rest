@@ -33,11 +33,23 @@ class RouterRequest {
     if ( strtoupper($request['method']) !== $this->method ) {
       return false;
     }
-    $requestedPath = array_values(array_filter(explode('/', $request['path'])));
+
+    $requestUrl = parse_url($request['path']);
+
+    if ( $requestUrl['query'] ) {
+      parse_str($requestUrl['query'], $params);
+      foreach ( $params as $paramKey => $paramValue ) {
+        $this->params[$paramKey] = $paramValue;
+      }
+    }
+
+    $requestedPath = array_values(array_filter(explode('/', $requestUrl['path'])));
     $definedPath = array_values(array_filter(explode('/', $this->path)));
+
     if ( count($requestedPath) !== count($definedPath) ) {
       return false;
     }
+
     for ($i = 0; $i < count($definedPath); $i++) {
       if ( $definedPath[$i][0] === ':' ) {
         $this->params[ltrim($definedPath[$i], ':')] = is_numeric($requestedPath[$i])
@@ -48,6 +60,7 @@ class RouterRequest {
         return false;
       }
     }
+
     return true;
   }
 

@@ -128,7 +128,7 @@ class TodoApp {
     });
 
     $router->addAction('POST', '/test', function($req){
-      Response::json(['POST test']);
+      Response::json(['POST test', $req]);
     });
 
     $router->work();
