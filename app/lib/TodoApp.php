@@ -132,12 +132,40 @@ class TodoApp {
       ]);
     });
 
-    $router->addAction('GET', '/item', function($req){
-      Response::json(['GET item', $req]);
+    $router->addAction('GET', '/tasks', function($req){
+      $data = array();
+      for( $i = 0; $i < 10; $i++) {
+        $data[] = array(
+          'id' => $i,
+          'name' => sprintf('Task %s', $i),
+          'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+          'status' => false,
+          'list' => 0
+        );
+      }
+      Response::json($data);
     });
 
-    $router->addAction('GET', '/item/:id', function($req){
-      Response::json(['GET item by id', 'data' => $req]);
+    $router->addAction('GET', '/tasks/:id', function($req){
+      $data = array(
+        'id' => $req['params']['id'],
+        'name' => sprintf('Task %s', $req['params']['id']),
+        'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+        'status' => false,
+        'list' => 0
+      );
+      Response::json($data);
+    });
+
+    $router->addAction('POST', '/tasks', function($req){
+      Response::json($req->body('name'));
+      // $data = array(
+      //   'name' => $req['body']['name'],
+      //   'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+      //   'status' => false,
+      //   'list' => 0
+      // );
+      // Response::json($data);
     });
 
     $router->addAction('*', '*', function($req){

@@ -12,10 +12,14 @@ class Response {
    * @param integer $status
    * @return void
    */
-  static function json(array $data, int $status = 200): void {
+  static function json($data, int $status = 200): void {
     header('Content-Type: application/json');
     http_response_code($status);
-    echo json_encode($data);
+    if (is_array($data)) {
+      echo json_encode($data);
+    } else {
+      echo json_encode(array($data));
+    }
     die;
   }
 }
