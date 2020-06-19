@@ -23,23 +23,11 @@ class RouterRequest {
     
     $requestData = new RouterRequestData;
     $requestData->setMethod($this->method);
-    $requestData->setHeaders($this->headers);
-    $requestData->setParams($this->params);
-    $requestData->setBody($this->body);
-    
-    call_user_func_array($this->action, ['req' => $requestData]);
+    $requestData->setHeadersArray($this->headers);
+    $requestData->setParamsArray($this->params);
+    $requestData->setBodyArray($this->body);
 
-    // $callbackData = array();
-    // if ( !empty($this->params) && $this->method === 'GET' ) {
-    //   $callbackData['params'] = $this->params;
-    // }
-    // if ( !empty($this->body) && $this->method !== 'GET' ) {
-    //   $callbackData['body'] = $this->body;
-    // }
-    // if ( !empty($this->headers) ) {
-    //   $callbackData['headers'] = $this->headers;
-    // }
-    // call_user_func_array($this->action, ['req' => $callbackData]);
+    call_user_func_array($this->action, ['req' => $requestData]);
     die;
   }
 

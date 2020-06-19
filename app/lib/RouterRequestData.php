@@ -11,33 +11,39 @@ class RouterRequestData {
   public function setMethod(string $method): void {
     $this->method = $method;
   }
-  public function setHeaders(?array $headers = null): void {
+  public function setHeadersArray(?array $headers = null): void {
     $this->headers = $headers;
   }
-  public function setParams(?array $params = null): void {
+  public function setParamsArray(?array $params = null): void {
     $this->params = $params;
   }
-  public function setBody(?array $body = null): void {
+  public function setBodyArray(?array $body = null): void {
     $this->body = $body;
   }
 
   /**
-   * Get query param or body data depends on request method
+   * Get param by key
+   *
+   * @param string $name
+   * @return string|null
+   */
+  public function getParam(string $name): ?string {
+    return isset($this->params[$name])
+      ? $this->params[$name]
+      : null
+    ;
+  }
+
+  /**
+   * Get body by key
    *
    * @param string $name
    * @return void
    */
-  public function param(string $name) {
-    if ( $this->method === 'GET' ) {
-      return isset($this->params[$name])
-        ? $this->params[$name]
-        : null
-      ;
-    } else {
-      return isset($this->body[$name])
-        ? $this->body[$name]
-        : null
-      ;
-    }
+  public function getBody(string $name) {
+    return isset($this->body[$name])
+      ? $this->body[$name]
+      : null
+    ;
   }
 }
