@@ -8,7 +8,7 @@ class Response {
    * Sends json response with specified status code
    * and stops execution.
    *
-   * @param $data
+   * @param string|array $data
    * @param integer $status
    * @return void
    */

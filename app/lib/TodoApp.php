@@ -49,20 +49,21 @@ class TodoApp {
     }
 
     try {
-
       $this->dbh = new PDO(sprintf('mysql:host=%s;dbname=%s', $this->dbHost, $this->dbName), $this->dbUser, $this->dbPass);
       $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     } catch ( PDOException $e ) {
-
       Response::json(['error' => sprintf('Error during connection to database: %s', $e->getMessage())], 503);
-
     }
 
     $this->prepareDatabase();
 
   }
 
+  /**
+   * Create application tables structure
+   *
+   * @return void
+   */
   protected function prepareDatabase(): void {
     $sql = 'CREATE TABLE IF NOT EXISTS `todo_item` (
       id INT PRIMARY KEY AUTO_INCREMENT,

@@ -21,8 +21,8 @@ class RouterRequest {
    * @return void
    */
   public function doAction(): void {
-    
     $requestData = new RouterRequestData;
+
     $requestData->setMethod($this->method);
     $requestData->setHeadersArray($this->headers);
     $requestData->setParamsArray($this->params);
@@ -36,7 +36,7 @@ class RouterRequest {
    * Check defined action path with request path with params
    * Params are automatic parsed to callback parameter
    *
-   * @param array $request
+   * @param string $requestPath
    * @return boolean
    */
   public function checkRequest(string $requestPath = ''): bool {

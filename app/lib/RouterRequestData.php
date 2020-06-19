@@ -36,7 +36,7 @@ class RouterRequestData {
    * Get body by key
    *
    * @param string $name
-   * @return void
+   * @return mixed
    */
   public function getBody(string $name) {
     return isset($this->body[$name])
