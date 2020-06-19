@@ -65,16 +65,17 @@ class TodoApp {
    * @return void
    */
   protected function prepareDatabase(): void {
-    $sql = 'CREATE TABLE IF NOT EXISTS `todo_item` (
+    $sql = 'CREATE TABLE IF NOT EXISTS `todo_tasks` (
       id INT PRIMARY KEY AUTO_INCREMENT,
-      body varchar(255) NOT NULL,
+      name varchar(255) NOT NULL,
+      description text(512) NOT NULL,
       list INT NOT NULL,
       status boolean NOT NULL
     );';
     $sth = $this->dbh->prepare($sql);
     $sth->execute();
 
-    $sql = 'CREATE TABLE IF NOT EXISTS `todo_list` (
+    $sql = 'CREATE TABLE IF NOT EXISTS `todo_projects` (
       id INT PRIMARY KEY AUTO_INCREMENT,
       name varchar(255) NOT NULL
     );';
@@ -106,6 +107,14 @@ class TodoApp {
     });
 
     $router->addAction('GET', '/tasks', function($req){
+
+      $sql = 'SELECT * from `todo_tasks` (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name varchar(255) NOT NULL,
+        email varchar(255) NOT NULL
+      );';
+
+
       $data = array();
       for( $i = 0; $i < 10; $i++) {
         $data[] = array(
