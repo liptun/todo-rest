@@ -10,9 +10,6 @@ class TodoApp {
   protected $dbHost;
   protected $dbConnection;
 
-  function __construct() {
-  }
-
   public function run(): void {
     $this->connectToDatabase();
     $this->parseRequest();

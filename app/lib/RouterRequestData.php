@@ -6,8 +6,6 @@ class RouterRequestData {
   protected $params;
   protected $body;
 
-  function __construct() {}
-
   public function setMethod(string $method): void {
     $this->method = $method;
   }
