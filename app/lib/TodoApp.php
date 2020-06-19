@@ -148,8 +148,8 @@ class TodoApp {
 
     $router->addAction('GET', '/tasks/:id', function($req){
       $data = array(
-        'id' => $req['params']['id'],
-        'name' => sprintf('Task %s', $req['params']['id']),
+        'id' => $req->param('id'),
+        'name' => sprintf('Task %s', $req->param('id')),
         'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
         'status' => false,
         'list' => 0
@@ -158,14 +158,13 @@ class TodoApp {
     });
 
     $router->addAction('POST', '/tasks', function($req){
-      Response::json($req->body('name'));
-      // $data = array(
-      //   'name' => $req['body']['name'],
-      //   'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
-      //   'status' => false,
-      //   'list' => 0
-      // );
-      // Response::json($data);
+      $data = array(
+        'name' => $req->param('name'),
+        'description' => $req->param('description'),
+        'status' => $req->param('status'),
+        'list' => 0
+      );
+      Response::json($data);
     });
 
     $router->addAction('*', '*', function($req){

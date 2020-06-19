@@ -21,10 +21,23 @@ class RouterRequestData {
     $this->body = $body;
   }
 
-  public function body(string $name = '') {
-    return $name
-      ? $this->body[$name]
-      : $this->body
-    ;
+  /**
+   * Get query param or body data depends on request method
+   *
+   * @param string $name
+   * @return void
+   */
+  public function param(string $name) {
+    if ( $this->method === 'GET' ) {
+      return isset($this->params[$name])
+        ? $this->params[$name]
+        : null
+      ;
+    } else {
+      return isset($this->body[$name])
+        ? $this->body[$name]
+        : null
+      ;
+    }
   }
 }
