@@ -9,9 +9,13 @@ class TodoApp {
   protected $dbPass;
   protected $dbHost;
   protected $dbConnection;
-  protected $request;
 
   function __construct() {
+  }
+
+  public function run(): void {
+    $this->connectToDatabase();
+    $this->parseRequest();
   }
   
   /**
@@ -108,12 +112,28 @@ class TodoApp {
 
   public function parseRequest(): void {
 
-    $this->request = new Request($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], '/api/v1/');
+    $router = new Router();
+    $router->setBaseUrl('/api/v1');
 
-    d($this->request->getMethod());
-    d($this->request->getParam());
-    d($this->request->getParamNext());
+    $router->addAction('GET', '/test', function($req){
+      Response::json(['GET test', $req]);
+    });
 
+    $router->addAction('GET', '/test/:id', function($req){
+      Response::json(['GET test with param', 'data' => $req]);
+    });
+
+    $router->addAction('GET', '/test2/:id/test22/:name', function($req){
+      Response::json(['GET test2 with param', $req]);
+    });
+
+    $router->addAction('POST', '/test', function($req){
+      Response::json(['POST test']);
+    });
+
+    $router->work();
+    
+    Response::json(['Bad request'], 400);
 
   }
 

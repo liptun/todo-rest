@@ -7,5 +7,4 @@ $app->setDatabaseUser(DBUSER);
 $app->setDatabasePass(DBPASS);
 $app->setDatabaseHost(DBHOST);
 
-$app->connectToDatabase();
-$app->parseRequest();
+$app->run();
