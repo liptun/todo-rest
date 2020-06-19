@@ -130,13 +130,16 @@ class TodoApp {
     $router->addAction('DELETE', '/item', function($req){
       Response::json(['DELETE item by id', $req]);
     });
+
     $router->addAction('PUT', '/item', function($req){
       Response::json(['PUT item by id', $req]);
     });
 
-    $router->work();
-    
-    Response::json(['Bad request'], 400);
+    $router->addAction('*', '*', function($req){
+      Response::json(['Bad request'], 400);
+    });
+
+    $router->start();
 
   }
 

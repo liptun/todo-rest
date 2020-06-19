@@ -36,7 +36,7 @@ class Router {
    *
    * @return void
    */
-  public function work(): void {
+  public function start(): void {
 
     foreach ( $this->actions as $action ) {
       if ( $action->checkRequest($this->getRequestPath()) ) {

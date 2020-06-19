@@ -50,8 +50,12 @@ class RouterRequest {
     );
 
     // Compare request methods
-    if ( strtoupper($request['method']) !== $this->method ) {
+    if ( strtoupper($request['method']) !== $this->method && $this->method !== '*' ) {
       return false;
+    }
+
+    if ( $this->path === '*' ) {
+      return true;
     }
 
     // Parse query url params
