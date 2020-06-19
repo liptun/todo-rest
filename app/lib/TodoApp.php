@@ -108,6 +108,13 @@ class TodoApp {
       name varchar(255) NOT NULL
     );';
     $this->dbConnection->query($sql);
+
+    $sql = 'CREATE TABLE IF NOT EXISTS `todo_users` (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      name varchar(255) NOT NULL,
+      email varchar(255) NOT NULL
+    );';
+    $this->dbConnection->query($sql);
   }
 
   public function parseRequest(): void {
