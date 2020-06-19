@@ -122,24 +122,22 @@ class TodoApp {
     $router = new Router();
     $router->setBaseUrl('/api/v1');
 
+    $router->addAction('GET', '/', function($req){
+      Response::json([
+        'name' => 'todo-rest',
+        'description' => 'This is simple CRUD TODO list application',
+        'author' => 'Rafał Karczmarzyk',
+        'docs' => '#',
+        'url' => '#'
+      ]);
+    });
+
     $router->addAction('GET', '/item', function($req){
       Response::json(['GET item', $req]);
     });
 
     $router->addAction('GET', '/item/:id', function($req){
       Response::json(['GET item by id', 'data' => $req]);
-    });
-
-    $router->addAction('POST', '/item', function($req){
-      Response::json(['POST item with data', $req]);
-    });
-
-    $router->addAction('DELETE', '/item', function($req){
-      Response::json(['DELETE item by id', $req]);
-    });
-
-    $router->addAction('PUT', '/item', function($req){
-      Response::json(['PUT item by id', $req]);
     });
 
     $router->addAction('*', '*', function($req){
