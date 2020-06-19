@@ -8,7 +8,7 @@ class TodoApp {
   protected $dbUser;
   protected $dbPass;
   protected $dbHost;
-  protected $dbConnection;
+  protected $dbh;
 
   public function run(): void {
     $this->connectToDatabase();
@@ -18,15 +18,12 @@ class TodoApp {
   public function setDatabaseName(string $name): void {
     $this->dbName = $name;
   }
-
   public function setDatabaseUser(string $user): void {
     $this->dbUser = $user;
   }
-
   public function setDatabasePass(string $pass): void {
     $this->dbPass = $pass;
   }
-
   public function setDatabaseHost(string $host): void {
     $this->dbHost = $host;
   }
@@ -53,8 +50,8 @@ class TodoApp {
 
     try {
 
-      $this->dbConnection = new PDO(sprintf('mysql:host=%s;dbname=%s', $this->dbHost, $this->dbName), $this->dbUser, $this->dbPass);
-      $this->dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $this->dbh = new PDO(sprintf('mysql:host=%s;dbname=%s', $this->dbHost, $this->dbName), $this->dbUser, $this->dbPass);
+      $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     } catch ( PDOException $e ) {
 
@@ -67,27 +64,29 @@ class TodoApp {
   }
 
   protected function prepareDatabase(): void {
-
     $sql = 'CREATE TABLE IF NOT EXISTS `todo_item` (
       id INT PRIMARY KEY AUTO_INCREMENT,
       body varchar(255) NOT NULL,
       list INT NOT NULL,
       status boolean NOT NULL
     );';
-    $this->dbConnection->query($sql);
+    $sth = $this->dbh->prepare($sql);
+    $sth->execute();
 
     $sql = 'CREATE TABLE IF NOT EXISTS `todo_list` (
       id INT PRIMARY KEY AUTO_INCREMENT,
       name varchar(255) NOT NULL
     );';
-    $this->dbConnection->query($sql);
+    $sth = $this->dbh->prepare($sql);
+    $sth->execute();
 
     $sql = 'CREATE TABLE IF NOT EXISTS `todo_users` (
       id INT PRIMARY KEY AUTO_INCREMENT,
       name varchar(255) NOT NULL,
       email varchar(255) NOT NULL
     );';
-    $this->dbConnection->query($sql);
+    $sth = $this->dbh->prepare($sql);
+    $sth->execute();
   }
 
   public function parseRequest(): void {
