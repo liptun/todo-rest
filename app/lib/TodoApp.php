@@ -8,7 +8,7 @@ class TodoApp {
   protected $dbUser;
   protected $dbPass;
   protected $dbHost;
-  protected $dbh;
+  protected $db;
 
   public function run(): void {
     $this->connectToDatabase();
@@ -28,14 +28,6 @@ class TodoApp {
     $this->dbHost = $host;
   }
 
-  /**
-   * Checks if configuration for connection to database is complete.
-   *
-   * @return boolean
-   */
-  protected function isConfigComplete(): bool {
-    return isset($this->dbName) && isset($this->dbUser) && isset($this->dbPass) && isset($this->dbHost);
-  }
 
   /**
    * Tries to create connection to database, returns 503 response when failed.
@@ -49,14 +41,23 @@ class TodoApp {
     }
 
     try {
-      $this->dbh = new PDO(sprintf('mysql:host=%s;dbname=%s', $this->dbHost, $this->dbName), $this->dbUser, $this->dbPass);
-      $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $this->db = new PDO(sprintf('mysql:host=%s;dbname=%s', $this->dbHost, $this->dbName), $this->dbUser, $this->dbPass);
+      $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch ( PDOException $e ) {
       Response::json(['error' => sprintf('Error during connection to database: %s', $e->getMessage())], 503);
     }
 
     $this->prepareDatabase();
 
+  }
+
+  /**
+   * Checks if configuration for connection to database is complete.
+   *
+   * @return boolean
+   */
+  protected function isConfigComplete(): bool {
+    return isset($this->dbName) && isset($this->dbUser) && isset($this->dbPass) && isset($this->dbHost);
   }
 
   /**
@@ -67,31 +68,44 @@ class TodoApp {
   protected function prepareDatabase(): void {
     $sql = 'CREATE TABLE IF NOT EXISTS `todo_tasks` (
       id INT PRIMARY KEY AUTO_INCREMENT,
+      project INT NOT NULL,
+      user INT NOT NULL,
       name varchar(255) NOT NULL,
       description text(512) NOT NULL,
-      list INT NOT NULL,
       status boolean NOT NULL
     );';
-    $sth = $this->dbh->prepare($sql);
-    $sth->execute();
+    $query = $this->db->prepare($sql);
+    $query->execute();
 
     $sql = 'CREATE TABLE IF NOT EXISTS `todo_projects` (
       id INT PRIMARY KEY AUTO_INCREMENT,
-      name varchar(255) NOT NULL
+      user INT NOT NULL,
+      name varchar(255) NOT NULL,
+      description text(512) NOT NULL
     );';
-    $sth = $this->dbh->prepare($sql);
-    $sth->execute();
+    $query = $this->db->prepare($sql);
+    $query->execute();
 
     $sql = 'CREATE TABLE IF NOT EXISTS `todo_users` (
       id INT PRIMARY KEY AUTO_INCREMENT,
       name varchar(255) NOT NULL,
       email varchar(255) NOT NULL
     );';
-    $sth = $this->dbh->prepare($sql);
-    $sth->execute();
+    $query = $this->db->prepare($sql);
+    $query->execute();
   }
 
-  public function parseRequest(): void {
+  protected static function modelTask(array $taskRawData): array {
+    return array(
+      'id' => (int) $taskRawData['id'],
+      'name' => $taskRawData['name'],
+      'description' => $taskRawData['description'],
+      'project' => (int) $taskRawData['project'],
+      'status' => (bool) $taskRawData['status']
+    );
+  }
+
+  protected function parseRequest(): void {
 
     $router = new Router();
     $router->setBaseUrl('/api/v1');
@@ -108,24 +122,16 @@ class TodoApp {
 
     $router->addAction('GET', '/tasks', function($req){
 
-      $sql = 'SELECT * from `todo_tasks` (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        name varchar(255) NOT NULL,
-        email varchar(255) NOT NULL
-      );';
+      $sql = 'SELECT * from `todo_tasks`;';
 
+      $query = $this->db->prepare($sql);
+      $query->execute();
 
-      $data = array();
-      for( $i = 0; $i < 10; $i++) {
-        $data[] = array(
-          'id' => $i,
-          'name' => sprintf('Task %s', $i),
-          'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
-          'status' => false,
-          'list' => 0
-        );
+      $responseData = array();
+      foreach( $query->fetchAll() as $queryRow ) {
+        $responseData[] = TodoApp::modelTask($queryRow);
       }
-      Response::json($data);
+      Response::json($responseData);
     });
 
     $router->addAction('GET', '/tasks/:id', function($req){
