@@ -101,8 +101,16 @@ class TodoApp {
       'name' => $taskRawData['name'],
       'description' => $taskRawData['description'],
       'project' => (int) $taskRawData['project'],
+      'user' => (int) $taskRawData['user'],
       'status' => (bool) $taskRawData['status']
     );
+  }
+
+  protected static function validateTask(array $newTaskData): bool {
+    if ( empty($newTaskData['name']) ) {
+      return false;
+    }
+    return true;
   }
 
   protected function getAllTasks(): array {
@@ -135,6 +143,28 @@ class TodoApp {
     }
   }
 
+  protected function postTask(array $newTaskData) {
+    if ( empty($newTaskData['status']) ) {
+      $newTaskData['status'] = false;
+    }
+
+    $sql = sprintf(
+      'INSERT INTO `todo_tasks`(name, description, status, project, user) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')',
+      $newTaskData['name'],
+      $newTaskData['description'],
+      $newTaskData['status'],
+      $newTaskData['project'],
+      $newTaskData['user'],
+    );
+
+    $query = $this->db->prepare($sql);
+    if ( $query->execute() ) {
+      return $this->getTaskById($this->db->lastInsertId());
+    } else {
+      return false;
+    }
+  }
+
   protected function parseRequest(): void {
 
     $router = new Router();
@@ -162,13 +192,19 @@ class TodoApp {
     });
 
     $router->addAction('POST', '/tasks', function($req){
-      $data = array(
+      $newTaskData = array(
         'name' => $req->getBody('name'),
         'description' => $req->getBody('description'),
         'status' => $req->getBody('status'),
-        'list' => 0
+        'project' => 0,
+        'user' => 0
       );
-      Response::json($data, 201);
+      if ( TodoApp::validateTask($newTaskData) ) {
+        $newTask = $this->postTask($newTaskData);
+        Response::json(TodoApp::modelTask($newTask), 201);
+      } else {
+        Response::json(['error' => 'Param name is required'], 400);
+      }
     });
 
     $router->addAction('*', '*', function($req){
