@@ -3,15 +3,16 @@
 class RouterRequest {
   protected $method;
   protected $path;
-  protected $action;
+  protected $callback;
   protected $params = array();
   protected $body = array();
   protected $headers = array();
 
-  function __construct(string $method, string $path, $action) {
+  
+  function __construct(string $method, string $path, $callback) {
     $this->method = strtoupper($method);
     $this->path = $path;
-    $this->action = $action;
+    $this->callback = $callback;
   }
 
   /**
@@ -27,8 +28,8 @@ class RouterRequest {
     $requestData->setParamsArray($this->params);
     $requestData->setBodyArray($this->body);
 
-    call_user_func_array($this->action, ['req' => $requestData]);
-    die;
+    call_user_func_array($this->callback, ['req' => $requestData]);
+    exit;
   }
 
   /**

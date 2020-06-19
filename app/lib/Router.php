@@ -22,7 +22,7 @@ class Router {
    *
    * @param string $method
    * @param string $path
-   * @param [type] $callback
+   * @param $callback
    * @return void
    */
   public function addAction(string $method, string $path, $callback): void {

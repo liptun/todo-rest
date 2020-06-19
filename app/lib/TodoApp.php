@@ -14,43 +14,19 @@ class TodoApp {
     $this->connectToDatabase();
     $this->parseRequest();
   }
-  
-  /**
-   * Set MySQL database name for connection.
-   * 
-   * @param string $name
-   * @return void
-   */
+
   public function setDatabaseName(string $name): void {
     $this->dbName = $name;
   }
-  
-  /**
-   * Set MySQL database user for connection.
-   *
-   * @param string $user
-   * @return void
-   */
+
   public function setDatabaseUser(string $user): void {
     $this->dbUser = $user;
   }
-  
-  /**
-   * Set MySQL database pass for connection.
-   *
-   * @param string $pass
-   * @return void
-   */
+
   public function setDatabasePass(string $pass): void {
     $this->dbPass = $pass;
   }
-  
-  /**
-   * Set MySQL database host for connection.
-   *
-   * @param string $host
-   * @return void
-   */
+
   public function setDatabaseHost(string $host): void {
     $this->dbHost = $host;
   }

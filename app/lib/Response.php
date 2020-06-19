@@ -15,11 +15,10 @@ class Response {
   public static function json($data, int $status = 200): void {
     header('Content-Type: application/json');
     http_response_code($status);
-    if (is_array($data)) {
-      echo json_encode($data);
-    } else {
-      echo json_encode(array($data));
-    }
-    die;
+    echo is_array($data)
+      ? json_encode($data)
+      : json_encode(array($data))
+    ;
+    exit;
   }
 }
