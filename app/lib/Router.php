@@ -4,16 +4,10 @@
  * Router
  */
 class Router {
-  protected $method;
-  protected $path;
   protected $baseUrl;
-  protected $currentPathIndex = 0;
   protected $actions = array();
 
-  function __construct() {
-    $this->method = $_SERVER['REQUEST_METHOD'];
-    $this->path = $_SERVER['REQUEST_URI'];
-  }
+  function __construct() {}
 
   /**
    * Set url base
@@ -45,7 +39,7 @@ class Router {
   public function work(): void {
 
     foreach ( $this->actions as $action ) {
-      if ( $action->checkRequest($this->getRequest()) ) {
+      if ( $action->checkRequest($this->getRequestPath()) ) {
         $action->doAction();
       }
     }
@@ -57,28 +51,7 @@ class Router {
    * @return string
    */
   protected function getRequestPath(): string {
-    return str_replace($this->baseUrl, '', $this->path);
-  }
-
-  /**
-   * Returns method type
-   *
-   * @return string
-   */
-  protected function getRequestMethod(): string {
-    return $this->method;
-  }
-
-  /**
-   * Get reuqst array with path and method
-   *
-   * @return array
-   */
-  protected function getRequest(): array {
-    return array(
-      'method' => $this->getRequestMethod(),
-      'path' => $this->getRequestPath()
-    );
+    return str_replace($this->baseUrl, '', $_SERVER['REQUEST_URI']);
   }
 
 
