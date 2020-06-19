@@ -165,6 +165,12 @@ class TodoApp {
     }
   }
 
+  protected function deleteTask($id) {
+    $sql = sprintf('DELETE FROM `todo_tasks` WHERE id=%s', $id);
+    $query = $this->db->prepare($sql);
+    return $query->execute();
+  }
+
   protected function parseRequest(): void {
 
     $router = new Router();
@@ -204,6 +210,17 @@ class TodoApp {
         Response::json(TodoApp::modelTask($newTask), 201);
       } else {
         Response::json(['error' => 'Param name is required'], 400);
+      }
+    });
+    
+    $router->addAction('DELETE', '/tasks', function($req){
+      if (!$req->getBody('id')) {
+        Response::json(['error' => 'Param id is required'], 400);
+      }
+      if ( $this->deleteTask($req->getBody('id')) ) {
+        Response::json(['message' => sprintf('Task with id %s was succesfully removed from database', $req->getBody('id'))]);
+      } else {
+        Response::json(['error' => 'There was an error during removing from database'], 500);
       }
     });
 
