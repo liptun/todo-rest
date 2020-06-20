@@ -144,20 +144,22 @@ class TodoApp {
   }
 
   protected function postTask(array $newTaskData) {
+    
+    if ( empty($newTaskData['description']) ) {
+      $newTaskData['description'] = '';
+    }
     if ( empty($newTaskData['status']) ) {
       $newTaskData['status'] = false;
     }
 
-    $sql = sprintf(
-      'INSERT INTO `todo_tasks`(name, description, status, project, user) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\')',
-      $newTaskData['name'],
-      $newTaskData['description'],
-      $newTaskData['status'],
-      $newTaskData['project'],
-      $newTaskData['user'],
-    );
-
+    $sql = 'INSERT INTO `todo_tasks`(name, description, status, project, user) VALUES (:name, :description, :status, :project, :user)';
     $query = $this->db->prepare($sql);
+    $query->bindParam(':name', $newTaskData['name']);
+    $query->bindParam(':description', $newTaskData['description']);
+    $query->bindParam(':status', $newTaskData['status']);
+    $query->bindParam(':project', $newTaskData['project']);
+    $query->bindParam(':user', $newTaskData['user']);
+
     if ( $query->execute() ) {
       return $this->getTaskById($this->db->lastInsertId());
     } else {
@@ -166,8 +168,9 @@ class TodoApp {
   }
 
   protected function deleteTask($id) {
-    $sql = sprintf('DELETE FROM `todo_tasks` WHERE id=%s', $id);
+    $sql = 'DELETE FROM `todo_tasks` WHERE id=:id';
     $query = $this->db->prepare($sql);
+    $query->bindParam(':id', $id);
     return $query->execute();
   }
 
