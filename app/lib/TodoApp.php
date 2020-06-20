@@ -187,11 +187,24 @@ class TodoApp
         ;
     }
 
-    protected function deleteTask($id)
+    protected function deleteTask(int $id)
     {
         $sql = 'DELETE FROM `todo_tasks` WHERE `id` = :id';
         $query = $this->db->prepare($sql);
-        $query->bindParam(':id', $id);
+        $query->bindParam(':id', $id, PDO::PARAM_INT);
+        return $query->execute();
+    }
+
+    protected function putTask(array $updateData)
+    {
+        $sql = 'UPDATE `todo_tasks` SET name = :name, description = :description, status = :status, project = :project, user = :user WHERE id = :id';
+        $query = $this->db->prepare($sql);
+        $query->bindParam(':id', $updateData['id'], PDO::PARAM_INT);
+        $query->bindParam(':name', $updateData['name'], PDO::PARAM_STR);
+        $query->bindParam(':description', $updateData['description'], PDO::PARAM_STR);
+        $query->bindParam(':status', $updateData['status'], PDO::PARAM_BOOL);
+        $query->bindParam(':project', $updateData['project'], PDO::PARAM_INT);
+        $query->bindParam(':user', $updateData['user'], PDO::PARAM_INT);
         return $query->execute();
     }
 
@@ -257,7 +270,7 @@ class TodoApp
         });
 
         $router->addAction('DELETE', '/tasks', function ($req) {
-            if (!$req->getBody('id')) {
+            if ($req->getBody('id') === null) {
                 Response::error('id is required', 400);
             }
             if (!is_int($req->getBody('id'))) {
@@ -271,6 +284,60 @@ class TodoApp
                 Response::json(['success' => sprintf('Task with id %s was succesfully removed from database', $req->getBody('id'))]);
             } else {
                 Response::error('There was an error during removing from database');
+            }
+        });
+        
+        $router->addAction('PATCH', '/tasks', function ($req) {
+            if ($req->getBody('id') === null) {
+                Response::error('id is required', 400);
+            }
+
+            if (!is_int($req->getBody('id'))) {
+                Response::error('id must be integer', 400);
+            }
+
+            $updateData = array();
+            if ($req->getBody('name') !== null && !is_string($req->getBody('name'))) {
+                Response::error('name must be a string', 400);
+            } else {
+                $updateData['name'] = $req->getBody('name');
+            }
+
+            if ($req->getBody('description') !== null && !is_string($req->getBody('description'))) {
+                Response::error('description must be a string', 400);
+            } else {
+                $updateData['description'] = $req->getBody('description');
+            }
+
+            if ($req->getBody('status') !== null && !is_bool($req->getBody('status'))) {
+                Response::error('status must be a boolean', 400);
+            } else {
+                $updateData['status'] = $req->getBody('status');
+            }
+
+            if ($req->getBody('project') !== null && !is_int($req->getBody('project'))) {
+                Response::error('project must be a integer', 400);
+            } else {
+                $updateData['project'] = $req->getBody('project');
+            }
+
+            if ($req->getBody('user') !== null && !is_int($req->getBody('user'))) {
+                Response::error('user must be a integer', 400);
+            } else {
+                $updateData['user'] = $req->getBody('user');
+            }
+
+            $taskToUpdate = $this->getTask($req->getBody('id'));
+            if (!$taskToUpdate) {
+                Response::error(sprintf('task with id %s not exists', $req->getBody('id')), 404);
+            }
+
+            $updateData = array_replace($taskToUpdate, $updateData);
+
+            if ($this->putTask($updateData)) {
+                Response::json($this->getTask($req->getBody('id')));
+            } else {
+                Response::error('there was an error during update item');
             }
         });
 
