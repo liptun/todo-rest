@@ -39,16 +39,31 @@ class RouterRequestData
     }
 
     /**
-     * Get body by key
+     * Get array of params
      *
-     * @param string $name
-     * @return mixed
+     * @return array
      */
-    public function getBody(string $name)
+    public function getParams(): array
     {
-        return isset($this->body[$name])
-            ? $this->body[$name]
-            : null
-        ;
+        return $this->params;
+    }
+
+
+    /**
+     * Get all body data or specified value by providing key
+     *
+     * @param string|null $name
+     * @return void
+     */
+    public function getBody(?string $key = null)
+    {
+        if (empty($key)) {
+            return $this->body;
+        } else {
+            return isset($this->body[$key])
+                ? $this->body[$key]
+                : null
+            ;
+        }
     }
 }
