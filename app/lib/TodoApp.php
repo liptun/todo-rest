@@ -332,9 +332,14 @@ class TodoApp
                 Response::error(sprintf('task with id %s not exists', $req->getBody('id')), 404);
             }
 
-            $updateData = array_replace($taskToUpdate, $updateData);
+            $dataToSet = $taskToUpdate;
+            foreach ($updateData as $dataKey => $dataValue) {
+                if ( $dataValue !== null ) {
+                    $dataToSet[$dataKey] = $dataValue;
+                }
+            }
 
-            if ($this->putTask($updateData)) {
+            if ($this->putTask($dataToSet)) {
                 Response::json($this->getTask($req->getBody('id')));
             } else {
                 Response::error('there was an error during update item');
