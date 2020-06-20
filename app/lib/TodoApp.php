@@ -140,8 +140,8 @@ class TodoApp
 
         $queryResult = $query->fetch();
         return $queryResult
-        ? TodoApp::modelTask($queryResult)
-        : false
+            ? TodoApp::modelTask($queryResult)
+            : false
         ;
     }
 
@@ -157,7 +157,6 @@ class TodoApp
 
     protected function postTask(array $newTaskData)
     {
-
         if (empty($newTaskData['description'])) {
             $newTaskData['description'] = '';
         }
@@ -182,11 +181,10 @@ class TodoApp
         $query->bindParam(':project', $newTaskData['project'], PDO::PARAM_INT);
         $query->bindParam(':user', $newTaskData['user'], PDO::PARAM_INT);
 
-        if ($query->execute()) {
-            return $this->getTask($this->db->lastInsertId());
-        } else {
-            return false;
-        }
+        return $query->execute()
+            ? $this->getTask($this->db->lastInsertId())
+            : false
+        ;
     }
 
     protected function deleteTask($id)
@@ -199,7 +197,6 @@ class TodoApp
 
     protected function parseRequest(): void
     {
-
         $router = new Router();
         $router->setBaseUrl('/api/v1');
 
@@ -225,7 +222,6 @@ class TodoApp
         });
 
         $router->addAction('POST', '/tasks', function ($req) {
-
             if ($req->getBody('name') === null) {
                 Response::error('name is reqired', 400);
             }
@@ -261,7 +257,6 @@ class TodoApp
         });
 
         $router->addAction('DELETE', '/tasks', function ($req) {
-
             if (!$req->getBody('id')) {
                 Response::error('id is required', 400);
             }
@@ -284,7 +279,5 @@ class TodoApp
         });
 
         $router->start();
-
     }
-
 }

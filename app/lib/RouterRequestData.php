@@ -47,8 +47,8 @@ class RouterRequestData
     public function getBody(string $name)
     {
         return isset($this->body[$name])
-        ? $this->body[$name]
-        : null
+            ? $this->body[$name]
+            : null
         ;
     }
 }

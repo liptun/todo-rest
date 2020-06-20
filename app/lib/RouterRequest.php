@@ -45,9 +45,7 @@ class RouterRequest
     {
         $request = array(
             'method' => $_SERVER['REQUEST_METHOD'],
-            'path' => isset($requestPath)
-            ? $requestPath
-            : $_SERVER['REQUEST_URI'],
+            'path' => isset($requestPath) ? $requestPath : $_SERVER['REQUEST_URI'],
         );
 
         // Compare request methods
@@ -93,7 +91,7 @@ class RouterRequest
         for ($i = 0; $i < count($definedPath); $i++) {
             if ($definedPath[$i][0] === ':') {
                 $this->params[ltrim($definedPath[$i], ':')] = $requestedPath[$i];
-            } else if ($definedPath[$i] !== $requestedPath[$i]) {
+            } elseif ($definedPath[$i] !== $requestedPath[$i]) {
                 return false;
             }
         }
@@ -110,5 +108,4 @@ class RouterRequest
     {
         return json_decode(file_get_contents('php://input'), true);
     }
-
 }
