@@ -21,4 +21,8 @@ class Response {
     ;
     exit;
   }
+
+  public static function error(string $errorMessage, int $status = 500): void {
+    Response::json(['error' => $errorMessage], $status);
+  }
 }

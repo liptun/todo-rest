@@ -37,14 +37,14 @@ class TodoApp {
   public function connectToDatabase(): void {
 
     if ( !$this->isConfigComplete() ) {
-      Response::json(['error' => 'Imcomplete or missing configuration for database connection'], 503);
+      Response::error('Imcomplete or missing configuration for database connection', 503);
     }
 
     try {
       $this->db = new PDO(sprintf('mysql:host=%s;dbname=%s', $this->dbHost, $this->dbName), $this->dbUser, $this->dbPass);
       $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch ( PDOException $e ) {
-      Response::json(['error' => sprintf('Error during connection to database: %s', $e->getMessage())], 503);
+      Response::error(sprintf('Error during connection to database: %s', $e->getMessage()), 503);
     }
 
     $this->prepareDatabase();
@@ -106,11 +106,10 @@ class TodoApp {
     );
   }
 
-  protected static function validateTask(array $newTaskData): bool {
-    if ( empty($newTaskData['name']) ) {
-      return false;
-    }
-    return true;
+  protected static function filterText(string $input): string {
+    $input = htmlspecialchars($input);
+    $input = trim($input);
+    return $input;
   }
 
   protected function getAllTasks(): array {
@@ -126,20 +125,24 @@ class TodoApp {
     return $responseData;
   }
 
-  protected function getTaskById($id) {
+  protected function getTask($id) {
     $sql = sprintf('SELECT * from `todo_tasks` WHERE id=%s;', $id);
     $query = $this->db->prepare($sql);
     $query->execute();
 
-    return $query->fetch();
+    $queryResult = $query->fetch();
+    return $queryResult
+      ? TodoApp::modelTask($queryResult)
+      : false
+    ;
   }
 
-  protected function responseTaskById($id): void {
-    $queryResult = $this->getTaskById($id);
+  protected function responseTask($id): void {
+    $queryResult = $this->getTask($id);
     if ( $queryResult ) {
-      Response::json(TodoApp::modelTask($queryResult));
+      Response::json($queryResult);
     } else {
-      Response::json(['error' => sprintf('Item with id: %s don\'t exists.', $id)], 404);
+      Response::error(sprintf('Item with id: %s don\'t exists.', $id), 404);
     }
   }
 
@@ -151,24 +154,33 @@ class TodoApp {
     if ( empty($newTaskData['status']) ) {
       $newTaskData['status'] = false;
     }
+    if ( empty($newTaskData['project']) ) {
+      $newTaskData['project'] = 0;
+    }
+    if ( empty($newTaskData['user']) ) {
+      $newTaskData['user'] = 0;
+    }
 
-    $sql = 'INSERT INTO `todo_tasks`(name, description, status, project, user) VALUES (:name, :description, :status, :project, :user)';
+    $newTaskData['name'] = TodoApp::filterText($newTaskData['name']);
+    $newTaskData['description'] = TodoApp::filterText($newTaskData['description']);
+
+    $sql = "INSERT INTO `todo_tasks`(name, description, status, project, user) VALUES (:name, :description, :status, :project, :user)";
     $query = $this->db->prepare($sql);
-    $query->bindParam(':name', $newTaskData['name']);
-    $query->bindParam(':description', $newTaskData['description']);
-    $query->bindParam(':status', $newTaskData['status']);
-    $query->bindParam(':project', $newTaskData['project']);
-    $query->bindParam(':user', $newTaskData['user']);
+    $query->bindParam(':name', $newTaskData['name'], PDO::PARAM_STR);
+    $query->bindParam(':description', $newTaskData['description'], PDO::PARAM_STR);
+    $query->bindParam(':status', $newTaskData['status'], PDO::PARAM_BOOL);
+    $query->bindParam(':project', $newTaskData['project'], PDO::PARAM_INT);
+    $query->bindParam(':user', $newTaskData['user'], PDO::PARAM_INT);
 
     if ( $query->execute() ) {
-      return $this->getTaskById($this->db->lastInsertId());
+      return $this->getTask($this->db->lastInsertId());
     } else {
       return false;
     }
   }
 
   protected function deleteTask($id) {
-    $sql = 'DELETE FROM `todo_tasks` WHERE id=:id';
+    $sql = 'DELETE FROM `todo_tasks` WHERE `id` = :id';
     $query = $this->db->prepare($sql);
     $query->bindParam(':id', $id);
     return $query->execute();
@@ -191,39 +203,67 @@ class TodoApp {
 
     $router->addAction('GET', '/tasks', function($req){
       if ( $req->getParam('id') ) {
-        $this->responseTaskById($req->getParam('id'));
+        $this->responseTask($req->getParam('id'));
       } else {
         Response::json($this->getAllTasks());
       }
     });
     $router->addAction('GET', '/tasks/:id', function($req){
-      $this->responseTaskById($req->getParam('id'));
+      $this->responseTask($req->getParam('id'));
     });
 
     $router->addAction('POST', '/tasks', function($req){
+
+      if ( $req->getBody('name') === null ) {
+        Response::error('name is reqired', 400);
+      }
+      if ( !is_string($req->getBody('name')) ) {
+        Response::error('name must be a string', 400);
+      }
+      if ( $req->getBody('description') !== null && !is_string($req->getBody('description')) ) {
+        Response::error('description must be a string', 400);
+      }
+      if ( $req->getBody('status') !== null && !is_bool($req->getBody('status')) ) {
+        Response::error('status must be a boolean', 400);
+      }
+      if ( $req->getBody('project') !== null && !is_int($req->getBody('project')) ) {
+        Response::error('project must be a integer', 400);
+      }
+      if ( $req->getBody('user') !== null && !is_int($req->getBody('user')) ) {
+        Response::error('user must be a integer', 400);
+      }
+
       $newTaskData = array(
         'name' => $req->getBody('name'),
         'description' => $req->getBody('description'),
         'status' => $req->getBody('status'),
-        'project' => 0,
-        'user' => 0
+        'project' => $req->getBody('project'),
+        'user' => $req->getBody('user')
       );
-      if ( TodoApp::validateTask($newTaskData) ) {
-        $newTask = $this->postTask($newTaskData);
-        Response::json(TodoApp::modelTask($newTask), 201);
+      $newTask = $this->postTask($newTaskData);
+      if ( $newTask ) {
+        Response::json($newTask, 201);
       } else {
-        Response::json(['error' => 'Param name is required'], 400);
+        Response::error('There was an error during creating new task');
       }
     });
     
     $router->addAction('DELETE', '/tasks', function($req){
+
       if (!$req->getBody('id')) {
-        Response::json(['error' => 'Param id is required'], 400);
+        Response::error('id is required', 400);
       }
+      if (!is_int($req->getBody('id'))) {
+        Response::error('id must be integer', 400);
+      }
+      if ( !$this->getTask($req->getBody('id')) ) {
+        Response::error(sprintf('task with id %s not exists', $req->getBody('id')), 404);
+      }
+
       if ( $this->deleteTask($req->getBody('id')) ) {
-        Response::json(['message' => sprintf('Task with id %s was succesfully removed from database', $req->getBody('id'))]);
+        Response::error(['success' => sprintf('Task with id %s was succesfully removed from database', $req->getBody('id'))]);
       } else {
-        Response::json(['error' => 'There was an error during removing from database'], 500);
+        Response::error('There was an error during removing from database');
       }
     });
 
