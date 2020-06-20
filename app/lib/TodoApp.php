@@ -5,11 +5,11 @@
  */
 class TodoApp
 {
-    protected $dbName;
-    protected $dbUser;
-    protected $dbPass;
-    protected $dbHost;
-    protected $db;
+    protected string $dbName;
+    protected string $dbUser;
+    protected string $dbPass;
+    protected string $dbHost;
+    protected PDO $db;
 
     public function run(): void
     {

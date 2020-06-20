@@ -2,10 +2,10 @@
 
 class RouterRequestData
 {
-    protected $method;
-    protected $headers;
-    protected $params;
-    protected $body;
+    protected string $method;
+    protected array $headers;
+    protected array $params;
+    protected array $body;
 
     public function setMethod(string $method): void
     {
@@ -33,8 +33,8 @@ class RouterRequestData
     public function getParam(string $name): ?string
     {
         return isset($this->params[$name])
-        ? $this->params[$name]
-        : null
+            ? $this->params[$name]
+            : null
         ;
     }
 

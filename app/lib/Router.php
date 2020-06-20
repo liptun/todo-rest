@@ -5,8 +5,8 @@
  */
 class Router
 {
-    protected $baseUrl;
-    protected $actions = array();
+    protected string $baseUrl;
+    protected array $actions = array();
 
     /**
      * Set url base

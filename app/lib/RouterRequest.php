@@ -2,12 +2,12 @@
 
 class RouterRequest
 {
-    protected $method;
-    protected $path;
+    protected string $method;
+    protected string $path;
     protected $callback;
-    protected $params = array();
-    protected $body = array();
-    protected $headers = array();
+    protected array $params = array();
+    protected array $body = array();
+    protected array $headers = array();
 
     public function __construct(string $method, string $path, $callback)
     {
