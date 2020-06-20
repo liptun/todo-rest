@@ -261,7 +261,7 @@ class TodoApp {
       }
 
       if ( $this->deleteTask($req->getBody('id')) ) {
-        Response::error(['success' => sprintf('Task with id %s was succesfully removed from database', $req->getBody('id'))]);
+        Response::json(['success' => sprintf('Task with id %s was succesfully removed from database', $req->getBody('id'))]);
       } else {
         Response::error('There was an error during removing from database');
       }
