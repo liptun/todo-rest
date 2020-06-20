@@ -18,8 +18,8 @@ class Response
         header('Content-Type: application/json');
         http_response_code($status);
         echo is_array($data)
-        ? json_encode($data)
-        : json_encode(array($data))
+            ? json_encode($data)
+            : json_encode(array($data))
         ;
         exit;
     }
