@@ -1,2 +1,3 @@
 # todo-rest
-TODO app with RESTful API
+
+Author: Rafał Karczmarzyk
